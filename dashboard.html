@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    
+
+    <style>
+       *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+        .carousel {
+            /* width: 600px; */
+            background-color: black;
+            border: 5px solid yellow;
+            height: 100vh;
+        }
+
+        .carousel-con {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .upload-con {
+            width: 570px;
+           
+            padding: 6px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px;
+            margin: 0 10px;
+            cursor: pointer;
+            background-color: rgb(129, 212, 34);
+            color: white;
+            border-radius: 9px;
+        }
+
+        img {
+            display: none;
+            aspect-ratio: 1 / 0.7;
+            max-width: 400px;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="carousel shadow rounded">
+        <div class="upload-con">
+            <input id="input" type="file" accept="image/*" onchange="pickAPicture()">
+        </div>
+        <div>
+            <img id="image" alt="">
+        </div>
+        <div class="carousel-con">
+            <button onclick="addImage()" id="addImageBtn">Add Image</button>
+            <button onclick="prev()" id="prevBtn">Previous</button>
+            <button onclick="next()" id="nextBtn">Next</button>
+            <button onclick="reset()" >Reset</button>
+        </div>
+    </div>
+</body>
+
+</html>
+
+<script>
+    let imageInput = document.getElementById("input");
+    let addImageBtn = document.getElementById("addImageBtn");
+    let prevBtn = document.getElementById("prevBtn");
+    let nextBtn = document.getElementById("nextBtn");
+    let image = document.getElementById("image");
+    let images = JSON.parse(localStorage.getItem("image")) || []
+
+   
+    let currentIndex = 0;
+
+    function pickAPicture() {
+        let file = imageInput.files[0];
+        if (!file) {
+            alert("Please select an image.");
+            return;
+        }
+ 
+
+        let reader = new FileReader();
+        reader.addEventListener("load", (e) => {
+            let dataUrl = e.target.result
+            image.src = dataUrl
+            image.style.display = "block"
+            console.log(dataUrl);
+
+        })
+
+        reader.readAsDataURL(file);
+    }
+
+    function addImage() {
+        let file = imageInput.files[0];
+        if (!file) {
+            alert("Please select an image first.");
+            return;
+        }
+
+        if (images.length >= 5) {
+            alert("You can only add up to 5 images.");
+            return;
+        }
+
+        let reader = new FileReader();
+        reader.addEventListener("load", (e) => {
+            let dataUrl = e.target.result;
+            images.push(dataUrl);
+            alert("Image added to the carousel.");
+        });
+        localStorage.setItem('image', JSON.stringify(images))
+        reader.readAsDataURL(file);
+    }
+
+    function updateImgSrc() {
+        if (images.length > 0) {
+            image.src = images[currentIndex];
+            image.style.display = "block";
+        } else {
+            image.style.display = "none";
+        }
+    }
+
+    function next() {
+        if (images.length === 0) return;
+        currentIndex = (currentIndex + 1) % images.length;
+        updateImgSrc();
+        localStorage.setItem('image', JSON.stringify(images))
+    }
+
+    function prev() {
+        if (images.length === 0) return;
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        updateImgSrc();
+        localStorage.setItem('image', JSON.stringify(images))
+    }
+
+    function reset(params) {
+       images.splice(0 , images.length)
+       localStorage.setItem('image', JSON.stringify(images))
+       updateImgSrc();
+    }
+</script>
